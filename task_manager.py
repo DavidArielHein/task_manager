@@ -37,14 +37,24 @@ class Task:
             'updated_at':self.__updated_at
         }
 
-command_list = ['add', 'update', 'delete', 'change-status', 'list']
+VALID_COMMANDS = ['add', 'update', 'delete', 'change-status', 'list', 'commands-list']
+VALID_STATUS = ['todo', 'in-progress', 'done']
+
+COMMAND_HELP = '''
+-------------------- Command list --------------------
+Add new task: add <task description>
+Update existing task: update <task id> <new description>
+Delete task: delete <task id>
+Change status of a task: change-status <task id> <new status [todo, in-progress, done]>
+'''
+
 
 def main():
     if len(sys.argv) < 2:
-        print('Error: No command provided.\nTry "commands_list" to see the available commands')
+        print('Error: No command provided.\nTry "commands-list" to see the available commands')
         return
-    elif sys.argv[1] not in command_list:
-        print('Error: Command not recongnized.\nTry "commands_list" to see the available commands')
+    elif sys.argv[1] not in VALID_COMMANDS:
+        print(f'Error: "{sys.argv[1]}" not recognized.\nTry "commands-list" to see the available commands')
         return
 
     command = sys.argv[1]
@@ -57,7 +67,11 @@ def main():
         tasks_list = get_file_data()
         new_task = Task()
 
-        new_task.create_task(len(tasks_list) + 1, sys.argv[2], 'To do', current_time, current_time)
+        if not tasks_list:  
+            new_task.create_task(1, sys.argv[2], 'To do', current_time, current_time)
+        else:
+            new_task.create_task(tasks_list[-1]['id'] + 1, sys.argv[2], 'To do', current_time, current_time)
+            
         tasks_list.append(new_task.format_json())
         update_file(tasks_list)
     
@@ -68,7 +82,7 @@ def main():
             print('Error: Missing task ID')
             return
         elif len(sys.argv) < 4:
-            print('Error: Missing new task description')
+            print('Error: Missing new description')
             return
         
         id = int(sys.argv[2])
@@ -85,10 +99,48 @@ def main():
         update_file(tasks_list)
     
     elif command == 'delete':
-        print('Delete')
+        tasks_list = get_file_data()
+        
+        if len(sys.argv) < 3:
+            print('Error: Missing task ID')
+            return
+        
+        id = int(sys.argv[2])
+        
+        for i, task in enumerate(tasks_list):
+            if task['id'] == id:
+                tasks_list.remove(task)
+                break
+        else:
+            print('Task not found')
+        
+        update_file(tasks_list)
     
     elif command == 'change-status':
-        print('Change-status')
+        tasks_list = get_file_data()
+        
+        if len(sys.argv) < 3:
+            print('Error: Missing task ID')
+            return
+        elif len(sys.argv) < 4:
+            print('Error: Missing status')
+            return
+        
+        id = int(sys.argv[2])
+        new_status = sys.argv[3]
+        if new_status not in VALID_STATUS:
+            print('Status not recognized')
+            return
+        
+        for task in tasks_list:
+            if task['id'] == id:
+                task['status'] = new_status
+                task['updated_at'] = current_time
+                break
+        else:
+            print('Task not found')
+        
+        update_file(tasks_list)
     
     elif command == 'list':
         tasks_list = get_file_data()
@@ -100,7 +152,9 @@ def main():
                 f"Created at: {task['created_at']}\n"
                 f"Updated: {task['updated_at']}\n"
             )
-
+    
+    elif command == 'commands-list':
+        print(COMMAND_HELP)
 
 def get_file_data():
     try:
