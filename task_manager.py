@@ -1,8 +1,10 @@
+# Modules to manage inputs of the user, json files and current times
 import sys
 import json
 from datetime import datetime
 
 class Task:
+    # Default task
     def __init__(self):
         self.__id = 0
         self.__description = 'No description'
@@ -10,24 +12,15 @@ class Task:
         self.__created_at = 'No date'
         self.__updated_at = 'No date'
     
-    
+
     def create_task(self, id, description, status, created_at, updated_at):
         self.__id = id
         self.__description = description
         self.__status = status
         self.__created_at = created_at
         self.__updated_at = updated_at
-    
-    
-    def update_task(self, new_description, new_updated_at):
-        self.__description = new_description
-        self.__updated_at = new_updated_at
-    
-    
-    def change_status(self, new_status):
-        self.__status = new_status
 
-    
+    # Formatting the data to match the json format
     def format_json(self):
         return {
             'id':self.__id,
@@ -37,6 +30,7 @@ class Task:
             'updated_at':self.__updated_at
         }
 
+# Constants for checking commands from the user
 VALID_COMMANDS = ['add', 'update', 'delete', 'change-status', 'list', 'commands-list']
 VALID_STATUS = ['todo', 'in-progress', 'done']
 
@@ -50,6 +44,7 @@ Change status of a task: change-status <task id> <new status [todo, in-progress,
 
 
 def main():
+    # Verifying if prompted enough arguments and correct commands
     if len(sys.argv) < 2:
         print('Error: No command provided.\nTry "commands-list" to see the available commands')
         return
@@ -57,21 +52,27 @@ def main():
         print(f'Error: "{sys.argv[1]}" not recognized.\nTry "commands-list" to see the available commands')
         return
 
+    # Retrieving the user's command
     command = sys.argv[1]
     current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
+    # Checking what action the user wants to do
     if command == 'add':
+        # Checking if there are task name
         if len(sys.argv) < 3:
             print('Error: Missing task description.')
 
+        # Getting the actual data of the file and creating a new task object
         tasks_list = get_file_data()
         new_task = Task()
 
+        # Adding the new task to the list
         if not tasks_list:  
-            new_task.create_task(1, sys.argv[2], 'To do', current_time, current_time)
+            new_task.create_task(1, sys.argv[2], 'todo', current_time, current_time)
         else:
             new_task.create_task(tasks_list[-1]['id'] + 1, sys.argv[2], 'To do', current_time, current_time)
-            
+        
+        # Updating the json file
         tasks_list.append(new_task.format_json())
         update_file(tasks_list)
     
@@ -88,6 +89,7 @@ def main():
         id = int(sys.argv[2])
         new_desc = sys.argv[3]
         
+        # Updating the description of the task
         for task in tasks_list:
             if task['id'] == id:
                 task['description'] = new_desc
@@ -96,6 +98,7 @@ def main():
         else:
             print('Task not found')
         
+        # Updating the json file
         update_file(tasks_list)
     
     elif command == 'delete':
@@ -107,6 +110,7 @@ def main():
         
         id = int(sys.argv[2])
         
+        # Removing the task from the list
         for i, task in enumerate(tasks_list):
             if task['id'] == id:
                 tasks_list.remove(task)
@@ -114,6 +118,7 @@ def main():
         else:
             print('Task not found')
         
+        # Updating the json file
         update_file(tasks_list)
     
     elif command == 'change-status':
@@ -140,6 +145,7 @@ def main():
         else:
             print('Task not found')
         
+        # Updating the json file
         update_file(tasks_list)
     
     elif command == 'list':
@@ -156,6 +162,7 @@ def main():
     elif command == 'commands-list':
         print(COMMAND_HELP)
 
+# Function for getting the data of the file, or creating a new if not exists
 def get_file_data():
     try:
         with open('data.json', 'r', encoding='utf-8') as json_file:
@@ -168,7 +175,7 @@ def get_file_data():
     except json.JSONDecodeError:
         return []
 
-
+# Function for updating the file with new data
 def update_file(new_tasks):
     with open('data.json', 'w', encoding='utf-8') as json_file:
         json.dump(new_tasks, json_file, indent=4, ensure_ascii=False)
