@@ -69,8 +69,10 @@ def main():
         # Adding the new task to the list
         if not tasks_list:  
             new_task.create_task(1, sys.argv[2], 'todo', current_time, current_time)
+            print(f'Task "{sys.argv[2]}" created successfully (ID: 1)')
         else:
             new_task.create_task(tasks_list[-1]['id'] + 1, sys.argv[2], 'To do', current_time, current_time)
+            print(f'Task "{sys.argv[2]}" created successfully (ID: {tasks_list[-1]['id'] + 1})')
         
         # Updating the json file
         tasks_list.append(new_task.format_json())
@@ -92,6 +94,7 @@ def main():
         # Updating the description of the task
         for task in tasks_list:
             if task['id'] == id:
+                print(f'Task "{task['description']}" updated successfully to "{new_desc}"')
                 task['description'] = new_desc
                 task['updated_at'] = current_time
                 break
@@ -113,6 +116,7 @@ def main():
         # Removing the task from the list
         for i, task in enumerate(tasks_list):
             if task['id'] == id:
+                print(f'Task "{task['description']}" deleted successfully')
                 tasks_list.remove(task)
                 break
         else:
@@ -132,15 +136,15 @@ def main():
             return
         
         id = int(sys.argv[2])
-        new_status = sys.argv[3]
-        if new_status not in VALID_STATUS:
+        if sys.argv[3] not in VALID_STATUS:
             print('Status not recognized')
             return
         
         for task in tasks_list:
             if task['id'] == id:
-                task['status'] = new_status
+                task['status'] = sys.argv[3]
                 task['updated_at'] = current_time
+                print(f'"{task['description']}" marked as "{sys.argv[3]}"')
                 break
         else:
             print('Task not found')
@@ -150,14 +154,49 @@ def main():
     
     elif command == 'list':
         tasks_list = get_file_data()
-        for task in tasks_list:
-            print(
-                f"Task: {task['description']}\n"
-                f"Id: {task['id']}\n"
-                f"Status: {task['status']}\n"
-                f"Created at: {task['created_at']}\n"
-                f"Updated: {task['updated_at']}\n"
-            )
+    
+        
+        if len(sys.argv) < 3:
+            for task in tasks_list:
+                print(
+                    f"Task: {task['description']}\n"
+                    f"Id: {task['id']}\n"
+                    f"Status: {task['status']}\n"
+                    f"Created at: {task['created_at']}\n"
+                    f"Updated: {task['updated_at']}\n"
+                )
+        elif sys.argv[2] == 'todo':
+            for task in tasks_list:
+                if task['status'] == 'todo':
+                    print(
+                        f"Task: {task['description']}\n"
+                        f"Id: {task['id']}\n"
+                        f"Status: {task['status']}\n"
+                        f"Created at: {task['created_at']}\n"
+                        f"Updated: {task['updated_at']}\n"
+                    )
+        elif sys.argv[2] == 'in-progress':
+            for task in tasks_list:
+                if task['status'] == 'in-progress':
+                    print(
+                        f"Task: {task['description']}\n"
+                        f"Id: {task['id']}\n"
+                        f"Status: {task['status']}\n"
+                        f"Created at: {task['created_at']}\n"
+                        f"Updated: {task['updated_at']}\n"
+                    )
+        elif sys.argv[2] == 'done':
+            for task in tasks_list:
+                if task['status'] == 'done':
+                    print(
+                        f"Task: {task['description']}\n"
+                        f"Id: {task['id']}\n"
+                        f"Status: {task['status']}\n"
+                        f"Created at: {task['created_at']}\n"
+                        f"Updated: {task['updated_at']}\n"
+                    )
+        else:
+            print('Filter not recognized')
     
     elif command == 'commands-list':
         print(COMMAND_HELP)
