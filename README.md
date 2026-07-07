@@ -29,7 +29,6 @@ The application runs directly from your command line. Execute commands by passin
 Create a new task by providing a description wrapped in quotes.
 ```bash
 python task_manager add "Buy groceries"
-# Output: Task added successfully (ID: 1)
 ```
 
 ### 2. Updating a Task Description
@@ -37,7 +36,6 @@ python task_manager add "Buy groceries"
 Modify an existing task's description using its unique ID.
 ```bash
 python task_manager update 1 "Buy groceries and cook dinner"
-# Output: Task 1 updated successfully
 ```
 
 ### 3. Deleting a Task
@@ -45,7 +43,6 @@ python task_manager update 1 "Buy groceries and cook dinner"
 Permanently remove a task using its ID.
 ```bash
 python task_manager delete 1
-# Output: Task 1 deleted successfully
 ```
 
 ### 4. Updating Task Status
@@ -56,14 +53,12 @@ Change the progress status of your tasks dynamically.
 
 ```bash
 python task_manager change-status 1 in-progress
-# Output: Task 1 marked as in-progress
 ```
 
 #### Mark as In-Progress:
 
 ```bash
 python task_manager change-status 1 done
-# Output: Task 1 marked as in-progress
 ```
 
 ### 5. Listing Tasks
